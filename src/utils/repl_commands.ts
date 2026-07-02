@@ -4,8 +4,13 @@ export function getCommands(): Record<string, CLIcommand>{
     return {
         map:{
             name:"map",
-            description:"Displays the names of 20 location areas in the Pokemon world",
+            description:"Displays the names of 20 location areas in the Pokemon world for next url",
             callback: commandMap
+        },
+        mapb:{
+            name:"mapb",
+            description:"Displays the names of 20 location areas in the Pokemon world for previuos url",
+            callback: commandMapBack
         },
         help:{
             name:"help",
@@ -31,6 +36,17 @@ export async function  commandMap(state: State) : Promise<void>{
     }
 }
 
+export async function  commandMapBack(state: State) : Promise<void>{
+    let locations = await state.pokeapi.fetchLocations(state.prevLocationsUrl);
+    
+    state.nextLocationsUrl = locations.next ?? undefined;
+    state.prevLocationsUrl = locations.previous ?? undefined;
+
+    for(let location of locations.results){
+        console.log(location.name);
+    }
+}
+
 export async function commandHelp(state:State):Promise<void>{
     console.log('Welcome to the Pokedex!\n');
     console.log('Usage:\n\n');
@@ -43,6 +59,5 @@ export async function commandHelp(state:State):Promise<void>{
 
 export async function commandExit(state:State):Promise<void>{
     console.log('Closing the Pokedex... Goodbye!\n');
-    state.interface.close();
     process.exit(0);
 }
