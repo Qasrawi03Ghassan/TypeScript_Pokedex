@@ -1,5 +1,5 @@
-import {createInterface} from "readline";
 import {getCommands} from './repl_commands.js';
+import { State } from './../models/state.js';
 
 export function cleanInput(str:string):string[]{
     let trimmed = str.trim();
@@ -9,14 +9,11 @@ export function cleanInput(str:string):string[]{
     return resultList;
 }
 
-const rl = createInterface({
-    input:process.stdin,
-    output:process.stdout,
-    prompt:"Pokedex > "
-});
-export function startREPL(){
+export function startREPL(state:State){
+    let rl = state.interface;
+
     rl.prompt();
-    rl.on("line",(line) => {
+    rl.on("line",async (line: string) => {
         if(line === '' || line === null || line === undefined)rl.prompt();
         let words = cleanInput(line);
         let cmds = getCommands();
@@ -29,13 +26,10 @@ export function startREPL(){
         }
         
         try{
-            console.log('\n');
-            cmd.callback(cmds);
+            await cmd.callback(state);
+            rl.prompt();
         }catch(e){
             console.log('ERROR: ' + e)
         }
-        
-        console.log('\n');
-        rl.prompt();
     });
 }
