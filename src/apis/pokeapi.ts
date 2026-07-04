@@ -11,11 +11,11 @@ export class PokeAPI {
 
     const cachedRes = this.#cache.get<ShallowLocations>(fullURL);
     if(cachedRes !== undefined){
-      console.log('cache hit');
+      //console.log('cache hit');
       return cachedRes;
     }
 
-    console.log('cache miss');
+    //console.log('cache miss');
     let resp =  await fetch(fullURL,{
         method:"GET"
     });
@@ -46,5 +46,9 @@ export type ShallowLocations = {
 };
 
 export type Location = {
-  // add properties here
+  pokemon_encounters:{
+    pokemon:{
+      name:string
+    }
+  }[]
 };

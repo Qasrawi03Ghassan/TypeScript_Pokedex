@@ -1,6 +1,6 @@
 import { CLIcommand, State } from "../models/state.js";
 
-export function getCommands(): Record<string, CLIcommand>{
+export function getCommands(...args:string[]): Record<string, CLIcommand>{
     return {
         map:{
             name:"map",
@@ -11,6 +11,11 @@ export function getCommands(): Record<string, CLIcommand>{
             name:"mapb",
             description:"Displays the names of 20 location areas in the Pokemon world for previuos url",
             callback: commandMapBack
+        },
+        explore:{
+            name:`explore ${args}`,
+            description:"Displays a list of all the Pokemon in a specified area",
+            callback: commandExplore
         },
         help:{
             name:"help",
@@ -23,6 +28,20 @@ export function getCommands(): Record<string, CLIcommand>{
             callback: commandExit
         }
     };
+}
+
+export async function  commandExplore(state: State,name: string) : Promise<void>{
+    console.log(`Exploring ${name}...`);
+    let location = await state.pokeapi.fetchLocation(name);
+
+    if(location === null || location === undefined) console.log(`ERROR: Can\'t get ${name} data.`);
+
+    console.log('Found Pokemon:');
+    
+    for(let pokemonCreature of location.pokemon_encounters){
+        console.log(`- ${pokemonCreature.pokemon.name}`);
+    }
+
 }
 
 export async function  commandMap(state: State) : Promise<void>{

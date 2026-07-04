@@ -16,9 +16,11 @@ export function startREPL(state:State){
     rl.on("line",async (line: string) => {
         if(line === '' || line === null || line === undefined)rl.prompt();
         let words = cleanInput(line);
-        let cmds = getCommands();
+        let args = words.slice(1);
+        let cmds = getCommands(...args);
 
         const cmd = cmds[words[0]];
+
         if(cmd === null || cmd === undefined){
             console.log('Unknown command');
             rl.prompt();
@@ -26,7 +28,7 @@ export function startREPL(state:State){
         }
         
         try{
-            await cmd.callback(state);
+            await cmd.callback(state,...args);
             rl.prompt();
         }catch(e){
             console.log('ERROR: ' + e)
