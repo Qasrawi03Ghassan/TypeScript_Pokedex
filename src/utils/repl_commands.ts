@@ -4,12 +4,12 @@ export function getCommands(): Record<string, CLIcommand>{
     return {
         map:{
             name:"map",
-            description:"Displays the names of 20 location areas in the Pokemon world for next url",
+            description:"Displays the names of 20 location areas in the Pokemon world. Reuse for next page",
             callback: commandMap
         },
         mapb:{
             name:"mapb",
-            description:"Displays the names of 20 location areas in the Pokemon world for previuos url",
+            description:"Displays the names of 20 location areas in the Pokemon world for previuos page",
             callback: commandMapBack
         },
         explore:{
@@ -26,6 +26,11 @@ export function getCommands(): Record<string, CLIcommand>{
             name:`inspect <pokemon_name>`,
             description:"Checks the stats for a previously caught Pokemon",
             callback: commandInspect
+        },
+        pokedex:{
+            name:`pokedex`,
+            description:"Displays a list of all previously captured Pokemon",
+            callback: commandPokedex
         },
         help:{
             name:"help",
@@ -53,11 +58,23 @@ export async function  commandCatch(state: State,...args: string[]) : Promise<vo
         if(roll < 100){
             state.caughtPokemon.set(args[0],pokemon);
             console.log(`${args[0]} was caught!`);
+            console.log('You may now inspect it with the inspect command.');
         }else{
             console.log(`${args[0]} escaped!`);
         }
     }
 }
+
+export async function  commandPokedex(state: State) : Promise<void>{
+    if(state.caughtPokemon.size === 0) console.log('You have not caught any Pokemon yet!');
+    else{
+        console.log('Your Pokedex:');
+        state.caughtPokemon.forEach((pokemon) => {
+        console.log(`  - ${pokemon.name}`);
+    });
+    }
+}
+
 
 export async function  commandInspect(state: State,...args: string[]) : Promise<void>{
     let pokemeon = state.caughtPokemon.get(args[0]);
