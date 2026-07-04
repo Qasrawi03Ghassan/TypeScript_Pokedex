@@ -1,6 +1,6 @@
 import { CLIcommand, State } from "../models/state.js";
 
-export function getCommands(...args:string[]): Record<string, CLIcommand>{
+export function getCommands(): Record<string, CLIcommand>{
     return {
         map:{
             name:"map",
@@ -13,9 +13,14 @@ export function getCommands(...args:string[]): Record<string, CLIcommand>{
             callback: commandMapBack
         },
         explore:{
-            name:`explore ${args}`,
+            name:`explore <location_area>`,
             description:"Displays a list of all the Pokemon in a specified area",
             callback: commandExplore
+        },
+        catch:{
+            name:`catch <pokemon_name>`,
+            description:"Adds a pokemon to the user's pokedex",
+            callback: commandCatch
         },
         help:{
             name:"help",
@@ -30,18 +35,31 @@ export function getCommands(...args:string[]): Record<string, CLIcommand>{
     };
 }
 
-export async function  commandExplore(state: State,name: string) : Promise<void>{
-    console.log(`Exploring ${name}...`);
-    let location = await state.pokeapi.fetchLocation(name);
+export async function  commandCatch(state: State,...args: string[]) : Promise<void>{
+    console.log(`Throwing a Pokeball at ${args[0]}...`);
+    let pokemon = await state.pokeapi.fetchPokemon(args[0]);
+    if(pokemon === null || pokemon === undefined) console.log(`ERROR: Can\'t get ${args[0]} data.`);
 
-    if(location === null || location === undefined) console.log(`ERROR: Can\'t get ${name} data.`);
+    const roll = Math.floor(Math.random() * pokemon.base_experience);
+    if(roll < 100){
+        state.caughtPokemon.set(args[0],pokemon);
+        console.log(`${args[0]} was caught!`);
+    }else{
+        console.log(`${args[0]} escaped!`);
+    }
+}
+
+export async function  commandExplore(state: State,...args: string[]) : Promise<void>{
+    console.log(`Exploring ${args[0]}...`);
+    let location = await state.pokeapi.fetchLocation(args[0]);
+
+    if(location === null || location === undefined) console.log(`ERROR: Can\'t get ${args[0]} data.`);
 
     console.log('Found Pokemon:');
     
     for(let pokemonCreature of location.pokemon_encounters){
         console.log(`- ${pokemonCreature.pokemon.name}`);
     }
-
 }
 
 export async function  commandMap(state: State) : Promise<void>{

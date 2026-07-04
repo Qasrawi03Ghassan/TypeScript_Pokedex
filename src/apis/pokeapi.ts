@@ -3,19 +3,26 @@ import {Cache} from './../cache/poke_cache.js';
 export class PokeAPI {
   private static readonly baseURL = "https://pokeapi.co/api/v2";
   #cache = new Cache(5 * 60 * 1000);
-
+  
   constructor() {}
+
+  async fetchPokemon(PokemonName: string): Promise<Pokemon>{
+    let fullURL = `${PokeAPI.baseURL}/pokemon/${PokemonName}`;
+    let resp = await fetch(fullURL,{
+      method:"GET"
+    });
+
+    return await resp.json();    
+  }
 
   async fetchLocations(pageURL?: string): Promise<ShallowLocations> {
     let fullURL = pageURL === undefined ? `${PokeAPI.baseURL}/location-area` : `${pageURL}`;
 
     const cachedRes = this.#cache.get<ShallowLocations>(fullURL);
     if(cachedRes !== undefined){
-      //console.log('cache hit');
       return cachedRes;
     }
 
-    //console.log('cache miss');
     let resp =  await fetch(fullURL,{
         method:"GET"
     });
@@ -27,11 +34,16 @@ export class PokeAPI {
 
   async fetchLocation(locationName: string): Promise<Location> {
     let fullURL = `${PokeAPI.baseURL}/location-area/${locationName}`;
+    const cacheRes = this.#cache.get<Location>(fullURL);
+    if(cacheRes !== undefined)return cacheRes;
+
+
     let resp =  await fetch(fullURL,{
         method:"GET"
     });
-
-    return await resp.json();
+    const data = await resp.json();
+    this.#cache.add(fullURL,data);
+    return data;
   }
 }
 
@@ -52,3 +64,8 @@ export type Location = {
     }
   }[]
 };
+
+export type Pokemon = {
+  name:string,
+  base_experience:number
+}

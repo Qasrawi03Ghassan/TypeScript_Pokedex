@@ -17,7 +17,7 @@ export function startREPL(state:State){
         if(line === '' || line === null || line === undefined)rl.prompt();
         let words = cleanInput(line);
         let args = words.slice(1);
-        let cmds = getCommands(...args);
+        let cmds = getCommands();
 
         const cmd = cmds[words[0]];
 

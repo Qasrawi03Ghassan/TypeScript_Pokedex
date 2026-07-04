@@ -1,10 +1,11 @@
 import { createInterface, type Interface } from "readline";
 import { getCommands } from "../utils/repl_commands.js";
-import { PokeAPI } from "../apis/pokeapi.js";
+import { PokeAPI, Pokemon } from "../apis/pokeapi.js";
 
 export type State = {
     interface : Interface,
     pokeapi:PokeAPI,
+    caughtPokemon: Map<string,Pokemon>
     nextLocationsUrl: string | undefined,
     prevLocationsUrl: string | undefined
     commands: Record<string,CLIcommand>
@@ -26,6 +27,6 @@ export function initState(): State{
 
     const cmds = getCommands();
 
-    return {interface:rl,pokeapi: new PokeAPI(),nextLocationsUrl:undefined,prevLocationsUrl:undefined,commands:cmds};
+    return {interface:rl,pokeapi: new PokeAPI(),nextLocationsUrl:undefined,prevLocationsUrl:undefined,commands:cmds,caughtPokemon: new Map()};
 
 }
